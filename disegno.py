@@ -3,43 +3,37 @@ from streamlit_drawable_canvas import st_canvas
 from PIL import Image
 
 st.set_page_config(page_title="ColoriAMO", layout="centered")
-st.title("🎨 Area Creativa per i Bimbi")
+st.title("🎨 Area Creativa")
 
-# --- BARRA LATERALE ---
-st.sidebar.header("Impostazioni")
-bg_image = st.sidebar.file_uploader("1. Carica il disegno:", type=["png", "jpg", "jpeg"])
+# 1. Caricamento immagine
+st.sidebar.header("1. Carica Disegno")
+file = st.sidebar.file_uploader("Scegli un'immagine:", type=["png", "jpg", "jpeg"])
 
-# Scelta del tipo di "pennello"
-pennello = st.sidebar.radio("2. Tipo di tratto:", ["Matita", "Pennarello", "Pennello Olio"])
-spessori = {"Matita": 4, "Pennarello": 12, "Pennello Olio": 35}
-stroke_width = spessori[pennello]
+# 2. Configurazione Pennelli
+st.sidebar.header("2. Strumenti")
+tipo = st.sidebar.radio("Pennello:", ["Matita ✏️", "Pennarello 🖊️", "Pennello Olio 🖌️"])
+pennelli = {"Matita ✏️": 4, "Pennarello 🖊️": 12, "Pennello Olio 🖌️": 35}
+colore = st.sidebar.color_picker("Scegli Colore:", "#000000")
 
-# Scelta del colore
-stroke_color = st.sidebar.color_picker("3. Scegli un colore:", "#FF0000")
+# --- IL TRUCCO PER RISOLVERE L'ERRORE ---
+# Creiamo sempre un'immagine, così il Canvas non riceve mai "nulla"
+if file is not None:
+    img_da_mostrare = Image.open(file).convert("RGB")
+else:
+    # Se non c'è file, creiamo un foglio bianco 600x400
+    img_da_mostrare = Image.new("RGB", (600, 400), (255, 255, 255))
 
-# --- GESTIONE IMMAGINE ---
-bg_img_obj = None
-if bg_image is not None:
-    # Apriamo l'immagine e forziamo il formato RGB per evitare errori
-    bg_img_obj = Image.open(bg_image).convert("RGB")
-    # Ridimensioniamo per farla stare bene nello schermo del telefono
-    bg_img_obj = bg_img_obj.resize((400, 400))
-
-# --- IL CANVAS (L'AREA DISEGNO) ---
-# Se non c'è immagine, mostriamo un canvas bianco standard
+# Visualizziamo il Canvas
+# NOTA: ho cambiato la 'key' in 'canvas_v5' per resettare tutto
 canvas_result = st_canvas(
     fill_color="rgba(255, 165, 0, 0.3)",
-    stroke_width=stroke_width,
-    stroke_color=stroke_color,
-    background_image=bg_img_obj, 
-    background_color="#FFFFFF",
+    stroke_width=pennelli[tipo],
+    stroke_color=colore,
+    background_image=img_da_mostrare,
     height=400,
-    width=400,
+    width=600,
     drawing_mode="freedraw",
-    key="canvas_principale",
+    key="canvas_v5", 
 )
 
-if bg_image is None:
-    st.info("👈 Carica un'immagine dalla barra laterale per iniziare a colorare!")
-else:
-    st.success("Buon divertimento! Usa le dita o il mouse per colorare.")
+st.info("💡 Se non vedi l'immagine, caricala dal menu a sinistra!")
