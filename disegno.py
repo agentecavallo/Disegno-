@@ -5,31 +5,41 @@ from PIL import Image
 st.set_page_config(page_title="ColoriAMO", layout="centered")
 st.title("🎨 Area Creativa per i Bimbi")
 
-# 1. Scelta dello strumento
-st.sidebar.header("Strumenti")
-tool = st.sidebar.selectbox(
-    "Cosa vuoi usare?", ("brush", "freedraw", "line", "rect")
-)
+# --- BARRA LATERALE ---
+st.sidebar.header("Configurazione")
 
-# Simuliamo i pennelli cambiando lo spessore
-pennello = st.sidebar.radio("Tipo di tratto:", ["Matita", "Pennarello", "Pennello Olio"])
-spessori = {"Matita": 3, "Pennarello": 10, "Pennello Olio": 25}
+# 1. Caricamento immagine (fondamentale farlo prima del canvas)
+bg_image = st.sidebar.file_uploader("1. Carica il disegno da colorare:", type=["png", "jpg", "jpeg"])
+
+# Gestione dell'immagine
+bg_img_obj = None
+if bg_image:
+    bg_img_obj = Image.open(bg_image)
+    # Opzionale: ridimensiona l'immagine per farla stare bene nel canvas
+    bg_img_obj = bg_img_obj.resize((600, 400))
+
+# 2. Scelta dello strumento
+tool = st.sidebar.selectbox("2. Cosa vuoi usare?", ("freedraw", "line", "rect", "circle", "transform"))
+
+# 3. Scelta del "Pennello"
+pennello = st.sidebar.radio("3. Tipo di tratto:", ["Matita", "Pennarello", "Pennello Olio"])
+spessori = {"Matita": 3, "Pennarello": 12, "Pennello Olio": 30}
 stroke_width = spessori[pennello]
 
-# 2. Scelta del colore
-stroke_color = st.sidebar.color_picker("Scegli un colore:", "#FF0000")
-bg_image = st.sidebar.file_uploader("Carica un disegno da colorare (PNG/JPG):", type=["png", "jpg"])
+# 4. Scelta del colore
+stroke_color = st.sidebar.color_picker("4. Scegli un colore:", "#FF0000")
 
-# 3. Il Canvas (La zona dove si disegna)
+# --- AREA DISEGNO (CANVAS) ---
+
 canvas_result = st_canvas(
-    fill_color="rgba(255, 165, 0, 0.3)",  # Colore riempimento per forme
+    fill_color="rgba(255, 165, 0, 0.3)",  # trasparenza per le forme piene
     stroke_width=stroke_width,
     stroke_color=stroke_color,
-    background_image=Image.open(bg_image) if bg_image else None,
-    update_streamlit=True,
-    height=500,
+    background_image=bg_img_obj, # Qui ora è sicuro, se è None non crasha
+    height=400,
+    width=600,
     drawing_mode=tool,
     key="canvas",
 )
 
-st.write("✨ Carica un'immagine e usa la barra a sinistra per colorare!")
+st.info("💡 Consiglio: Carica un'immagine dalla barra a sinistra e inizia a dipingere!")
