@@ -3,165 +3,190 @@ import random
 
 # ── Configurazione pagina ──────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="🌈 Quiz dei Bambini",
-    page_icon="🦁",
+    page_title="🎨 Impara i Colori!",
+    page_icon="🎨",
     layout="centered",
 )
 
-# ── CSS personalizzato ─────────────────────────────────────────────────────────
+# ── CSS ────────────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&display=swap');
 
   html, body, [class*="css"] {
-    font-family: 'Nunito', sans-serif;
+    font-family: 'Baloo 2', cursive;
   }
 
   .stApp {
-    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 25%, #a1c4fd 75%, #c2e9fb 100%);
+    background: #1a1a2e;
     min-height: 100vh;
   }
 
   .title-box {
     text-align: center;
-    background: white;
-    border-radius: 30px;
-    padding: 20px 30px;
-    margin-bottom: 24px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    padding: 18px 20px 10px;
+    margin-bottom: 10px;
   }
-  .title-box h1 { font-size: 2.8rem; margin: 0; }
-  .title-box p  { font-size: 1.2rem; color: #666; margin: 4px 0 0; }
+  .title-box h1 {
+    font-size: 3rem;
+    margin: 0;
+    color: white;
+    text-shadow: 0 0 20px rgba(255,255,255,0.4);
+  }
+  .title-box p {
+    font-size: 1.2rem;
+    color: #ccc;
+    margin: 4px 0 0;
+  }
 
-  .domanda-box {
-    background: white;
-    border-radius: 24px;
-    padding: 28px 32px;
-    text-align: center;
-    box-shadow: 0 6px 24px rgba(0,0,0,0.10);
-    margin-bottom: 20px;
+  .color-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 10px auto 18px;
   }
-  .domanda-box .emoji { font-size: 5rem; line-height: 1.2; }
-  .domanda-box h2 { font-size: 1.7rem; color: #333; margin: 12px 0 0; }
+
+  .color-circle {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    margin: 0 auto;
+    box-shadow: 0 0 60px rgba(255,255,255,0.25), 0 0 120px rgba(255,255,255,0.1);
+    border: 6px solid rgba(255,255,255,0.2);
+    transition: transform 0.3s;
+  }
+
+  .domanda-text {
+    text-align: center;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: white;
+    margin: 16px 0 10px;
+  }
+
+  .score-bar {
+    background: rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 10px 24px;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 14px;
+    backdrop-filter: blur(6px);
+  }
 
   div.stButton > button {
     width: 100%;
-    font-family: 'Nunito', sans-serif;
-    font-size: 1.25rem;
-    font-weight: 700;
-    border-radius: 18px;
-    padding: 14px 10px;
-    border: 3px solid transparent;
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.3rem;
+    font-weight: 800;
+    border-radius: 20px;
+    padding: 16px 10px;
+    border: none;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
     transition: transform 0.15s, box-shadow 0.15s;
     cursor: pointer;
+    letter-spacing: 0.5px;
   }
   div.stButton > button:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    transform: translateY(-4px) scale(1.03);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.4);
   }
 
-  .score-box {
-    background: white;
-    border-radius: 20px;
-    padding: 16px 24px;
+  .feedback-ok {
     text-align: center;
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: #444;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-    margin-bottom: 20px;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #2ecc71;
+    margin: 8px 0;
+    text-shadow: 0 0 20px rgba(46,204,113,0.5);
+  }
+  .feedback-no {
+    text-align: center;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #e74c3c;
+    margin: 8px 0;
+    text-shadow: 0 0 20px rgba(231,76,60,0.5);
   }
 
-  .feedback-ok  { font-size: 2rem; color: #2ecc71; font-weight: 900; text-align: center; }
-  .feedback-no  { font-size: 2rem; color: #e74c3c; font-weight: 900; text-align: center; }
   .fine-box {
-    background: white;
+    background: rgba(255,255,255,0.08);
     border-radius: 28px;
     padding: 36px;
     text-align: center;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    border: 2px solid rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
   }
-  .fine-box h2 { font-size: 2.2rem; }
-  .fine-box p  { font-size: 1.3rem; color: #555; }
+  .fine-box h2 { font-size: 2.4rem; color: white; }
+  .fine-box p  { font-size: 1.3rem; color: #ccc; }
 </style>
 """, unsafe_allow_html=True)
 
-# ── Domande ────────────────────────────────────────────────────────────────────
-DOMANDE = [
-    {"emoji": "🐶", "domanda": "Che animale è questo?",
-     "risposta": "Cane", "opzioni": ["Gatto", "Cane", "Coniglio", "Cavallo"]},
-    {"emoji": "🐱", "domanda": "Che animale è questo?",
-     "risposta": "Gatto", "opzioni": ["Cane", "Volpe", "Gatto", "Orso"]},
-    {"emoji": "🍎", "domanda": "Che frutto è questo?",
-     "risposta": "Mela", "opzioni": ["Pera", "Banana", "Mela", "Arancia"]},
-    {"emoji": "🍌", "domanda": "Che frutto è questo?",
-     "risposta": "Banana", "opzioni": ["Mela", "Banana", "Uva", "Fragola"]},
-    {"emoji": "🚗", "domanda": "Che veicolo è questo?",
-     "risposta": "Macchina", "opzioni": ["Bici", "Treno", "Macchina", "Aereo"]},
-    {"emoji": "✈️", "domanda": "Che veicolo è questo?",
-     "risposta": "Aereo", "opzioni": ["Macchina", "Barca", "Aereo", "Moto"]},
-    {"emoji": "🌞", "domanda": "Cosa vedi nel cielo di giorno?",
-     "risposta": "Sole", "opzioni": ["Luna", "Stelle", "Sole", "Nuvola"]},
-    {"emoji": "🌙", "domanda": "Cosa vedi nel cielo di notte?",
-     "risposta": "Luna", "opzioni": ["Sole", "Luna", "Arcobaleno", "Fiore"]},
-    {"emoji": "🌸", "domanda": "Cos'è questo?",
-     "risposta": "Fiore", "opzioni": ["Albero", "Foglia", "Fiore", "Erba"]},
-    {"emoji": "🐠", "domanda": "Che animale è questo?",
-     "risposta": "Pesce", "opzioni": ["Balena", "Pesce", "Granchio", "Delfino"]},
-    {"emoji": "🍕", "domanda": "Che cibo è questo?",
-     "risposta": "Pizza", "opzioni": ["Pasta", "Pizza", "Panino", "Torta"]},
-    {"emoji": "🎈", "domanda": "Cos'è questo?",
-     "risposta": "Palloncino", "opzioni": ["Palla", "Palloncino", "Uovo", "Bolla"]},
-    {"emoji": "🐘", "domanda": "Che animale è questo?",
-     "risposta": "Elefante", "opzioni": ["Ippopotamo", "Rinoceronte", "Elefante", "Giraffa"]},
-    {"emoji": "🌈", "domanda": "Cos'è questo?",
-     "risposta": "Arcobaleno", "opzioni": ["Tramonto", "Arcobaleno", "Nuvola", "Stella"]},
-    {"emoji": "🍓", "domanda": "Che frutto è questo?",
-     "risposta": "Fragola", "opzioni": ["Ciliegia", "Fragola", "Lampone", "Pesca"]},
+# ── Dati colori ────────────────────────────────────────────────────────────────
+COLORI = [
+    {"nome": "Rosso",    "hex": "#FF3B3B", "emoji": "🍎", "btn": "#FF3B3B"},
+    {"nome": "Blu",      "hex": "#3B8BFF", "emoji": "🌊", "btn": "#3B8BFF"},
+    {"nome": "Giallo",   "hex": "#FFD93D", "emoji": "🌟", "btn": "#E8C400"},
+    {"nome": "Verde",    "hex": "#3BCC6E", "emoji": "🌿", "btn": "#3BCC6E"},
+    {"nome": "Arancione","hex": "#FF8C3B", "emoji": "🍊", "btn": "#FF8C3B"},
+    {"nome": "Viola",    "hex": "#9B59FF", "emoji": "🍇", "btn": "#9B59FF"},
+    {"nome": "Rosa",     "hex": "#FF6EC7", "emoji": "🌸", "btn": "#FF6EC7"},
+    {"nome": "Azzurro",  "hex": "#3BE8FF", "emoji": "🦋", "btn": "#00BFCF"},
+    {"nome": "Marrone",  "hex": "#A0522D", "emoji": "🐻", "btn": "#A0522D"},
+    {"nome": "Bianco",   "hex": "#F0F0F0", "emoji": "☁️",  "btn": "#999999"},
 ]
 
-COLORI_BOTTONI = ["#FF6B6B", "#4ECDC4", "#FFE66D", "#A8E6CF"]
+TOTALE_ROUND = 10
 
-# ── Stato sessione ─────────────────────────────────────────────────────────────
+def genera_domanda():
+    colore_giusto = random.choice(COLORI)
+    distrattori   = random.sample([c for c in COLORI if c["nome"] != colore_giusto["nome"]], 3)
+    opzioni       = [colore_giusto] + distrattori
+    random.shuffle(opzioni)
+    return colore_giusto, opzioni
+
 def inizializza():
-    domande_mischiate = random.sample(DOMANDE, len(DOMANDE))
-    st.session_state.domande      = domande_mischiate
-    st.session_state.indice       = 0
-    st.session_state.punteggio    = 0
-    st.session_state.feedback     = None   # None | "ok" | "no"
-    st.session_state.risposta_data = None
-    st.session_state.fine         = False
+    st.session_state.round       = 0
+    st.session_state.punteggio   = 0
+    st.session_state.feedback    = None
+    st.session_state.fine        = False
+    giusto, opzioni = genera_domanda()
+    st.session_state.colore_giusto = giusto
+    st.session_state.opzioni       = opzioni
 
-if "domande" not in st.session_state:
+if "round" not in st.session_state:
     inizializza()
-
-TOTALE = len(st.session_state.domande)
 
 # ── Intestazione ───────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="title-box">
-  <h1>🌈 Quiz dei Bambini</h1>
-  <p>Quante ne sai? Dimostralo! 🎉</p>
+  <h1>🎨 Impara i Colori!</h1>
+  <p>Tocca il nome del colore giusto! 🌈</p>
 </div>
 """, unsafe_allow_html=True)
 
 # ── Fine gioco ─────────────────────────────────────────────────────────────────
 if st.session_state.fine:
     p = st.session_state.punteggio
-    if p == TOTALE:
-        stella, msg = "🏆", "Sei un campione!"
-    elif p >= TOTALE * 0.7:
-        stella, msg = "⭐⭐⭐", "Bravissimo!"
-    elif p >= TOTALE * 0.4:
-        stella, msg = "⭐⭐", "Bravo, continua così!"
+    if p == TOTALE_ROUND:
+        premio, msg = "🏆🌈", "Perfetto! Conosci tutti i colori!"
+    elif p >= 7:
+        premio, msg = "⭐⭐⭐", "Bravissimo/a! Quasi perfetto!"
+    elif p >= 4:
+        premio, msg = "⭐⭐", "Bravo/a! Continua a colorare!"
     else:
-        stella, msg = "⭐", "Riprova, ce la fai!"
+        premio, msg = "⭐", "Riprova, imparerai presto!"
 
     st.markdown(f"""
     <div class="fine-box">
-      <div style="font-size:4rem">{stella}</div>
+      <div style="font-size:4.5rem; margin-bottom:10px">{premio}</div>
       <h2>{msg}</h2>
-      <p>Hai risposto bene a <strong>{p}</strong> domande su <strong>{TOTALE}</strong>!</p>
+      <p>Hai indovinato <strong style="color:white">{p}</strong> colori su <strong style="color:white">{TOTALE_ROUND}</strong>! 🎉</p>
     </div>
     """, unsafe_allow_html=True)
     st.write("")
@@ -170,68 +195,62 @@ if st.session_state.fine:
         st.rerun()
     st.stop()
 
-# ── Domanda corrente ───────────────────────────────────────────────────────────
-i  = st.session_state.indice
-dq = st.session_state.domande[i]
-
-# punteggio
+# ── Score bar ──────────────────────────────────────────────────────────────────
+r = st.session_state.round
+p = st.session_state.punteggio
 st.markdown(f"""
-<div class="score-box">
-  ❓ Domanda {i+1} di {TOTALE} &nbsp;|&nbsp; ⭐ Punti: {st.session_state.punteggio}
+<div class="score-bar">
+  🎨 Giro {r + 1} di {TOTALE_ROUND} &nbsp;|&nbsp; ⭐ Punti: {p}
 </div>
 """, unsafe_allow_html=True)
 
-# card domanda
+# ── Pallino colorato ───────────────────────────────────────────────────────────
+colore = st.session_state.colore_giusto
 st.markdown(f"""
-<div class="domanda-box">
-  <div class="emoji">{dq['emoji']}</div>
-  <h2>{dq['domanda']}</h2>
+<div class="color-stage">
+  <div class="color-circle" style="background:{colore['hex']};"></div>
 </div>
+<div class="domanda-text">Che colore è questo? {colore['emoji']}</div>
 """, unsafe_allow_html=True)
 
-# feedback
+# ── Feedback ───────────────────────────────────────────────────────────────────
 if st.session_state.feedback == "ok":
-    st.markdown(f'<div class="feedback-ok">✅ Esatto! Bravissimo/a! 🎉</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="feedback-ok">✅ Sì! È {colore["nome"]}! Bravissimo/a! 🎉</div>', unsafe_allow_html=True)
 elif st.session_state.feedback == "no":
-    st.markdown(f'<div class="feedback-no">❌ Ops! Era: {dq["risposta"]} {dq["emoji"]}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="feedback-no">❌ Era {colore["nome"]} {colore["emoji"]} — riprova!</div>', unsafe_allow_html=True)
 
 st.write("")
 
-# opzioni
+# ── Bottoni risposta ───────────────────────────────────────────────────────────
 if st.session_state.feedback is None:
-    opzioni = dq["opzioni"].copy()
-    random.shuffle(opzioni)
-    cols = st.columns(2)
+    opzioni = st.session_state.opzioni
+    col1, col2 = st.columns(2)
     for idx, opz in enumerate(opzioni):
-        col = cols[idx % 2]
-        colore = COLORI_BOTTONI[idx]
+        col = col1 if idx % 2 == 0 else col2
         with col:
-            # colora sfondo bottone via markdown trick
             st.markdown(f"""
             <style>
-            div[data-testid="column"]:nth-child({(idx%2)+1}) div.stButton:nth-of-type(1) > button {{
-              background-color: {colore}22;
-              border-color: {colore};
-              color: #222;
+            section[data-testid="column"]:nth-of-type({(idx%2)+1}) > div:nth-of-type({idx//2 + 1}) div.stButton > button {{
+              background: {opz['btn']};
             }}
             </style>
             """, unsafe_allow_html=True)
-            if st.button(opz, key=f"opz_{i}_{idx}"):
-                st.session_state.risposta_data = opz
-                if opz == dq["risposta"]:
+            if st.button(opz["nome"], key=f"btn_{r}_{idx}"):
+                if opz["nome"] == colore["nome"]:
                     st.session_state.feedback  = "ok"
                     st.session_state.punteggio += 1
                 else:
                     st.session_state.feedback = "no"
                 st.rerun()
 else:
-    # bottone avanti
-    label = "➡️ Prossima domanda" if i < TOTALE - 1 else "🏁 Vedi il risultato!"
+    label = "➡️ Prossimo colore!" if r < TOTALE_ROUND - 1 else "🏁 Vedi il risultato!"
     if st.button(label, use_container_width=True):
-        if i < TOTALE - 1:
-            st.session_state.indice   += 1
-            st.session_state.feedback  = None
-            st.session_state.risposta_data = None
+        if r < TOTALE_ROUND - 1:
+            st.session_state.round   += 1
+            st.session_state.feedback = None
+            giusto, opzioni = genera_domanda()
+            st.session_state.colore_giusto = giusto
+            st.session_state.opzioni       = opzioni
         else:
             st.session_state.fine = True
         st.rerun()
