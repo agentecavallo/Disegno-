@@ -1,45 +1,41 @@
 import streamlit as st
 from streamlit_drawable_canvas import st_canvas
 from PIL import Image
+import numpy as np
 
 st.set_page_config(page_title="ColoriAMO", layout="centered")
 st.title("🎨 Area Creativa per i Bimbi")
 
-# --- BARRA LATERALE ---
-st.sidebar.header("Configurazione")
+# 1. Caricamento file nella barra laterale
+st.sidebar.header("1. Carica Disegno")
+bg_image = st.sidebar.file_uploader("Scegli un'immagine da colorare:", type=["png", "jpg", "jpeg"])
 
-# 1. Caricamento immagine (fondamentale farlo prima del canvas)
-bg_image = st.sidebar.file_uploader("1. Carica il disegno da colorare:", type=["png", "jpg", "jpeg"])
-
-# Gestione dell'immagine
-bg_img_obj = None
-if bg_image:
-    bg_img_obj = Image.open(bg_image)
-    # Opzionale: ridimensiona l'immagine per farla stare bene nel canvas
-    bg_img_obj = bg_img_obj.resize((600, 400))
-
-# 2. Scelta dello strumento
-tool = st.sidebar.selectbox("2. Cosa vuoi usare?", ("freedraw", "line", "rect", "circle", "transform"))
-
-# 3. Scelta del "Pennello"
-pennello = st.sidebar.radio("3. Tipo di tratto:", ["Matita", "Pennarello", "Pennello Olio"])
+# 2. Configurazione Pennelli
+st.sidebar.header("2. Strumenti")
+pennello = st.sidebar.radio("Tipo di tratto:", ["Matita", "Pennarello", "Pennello Olio"])
 spessori = {"Matita": 3, "Pennarello": 12, "Pennello Olio": 30}
 stroke_width = spessori[pennello]
+stroke_color = st.sidebar.color_picker("Scegli un colore:", "#FF0000")
 
-# 4. Scelta del colore
-stroke_color = st.sidebar.color_picker("4. Scegli un colore:", "#FF0000")
+# --- LOGICA DI PROTEZIONE ---
+# Se l'utente ha caricato un'immagine, la usiamo. 
+# Se NON l'ha caricata, creiamo uno sfondo bianco vuoto per non far crashare l'app.
+if bg_image:
+    img = Image.open(bg_image)
+else:
+    # Crea un'immagine bianca 600x400 se non c'è upload
+    img = Image.new('RGB', (600, 400), color = 'white')
 
-# --- AREA DISEGNO (CANVAS) ---
-
+# Mostriamo il Canvas
 canvas_result = st_canvas(
-    fill_color="rgba(255, 165, 0, 0.3)",  # trasparenza per le forme piene
+    fill_color="rgba(255, 165, 0, 0.3)",
     stroke_width=stroke_width,
     stroke_color=stroke_color,
-    background_image=bg_img_obj, # Qui ora è sicuro, se è None non crasha
+    background_image=img, # Ora 'img' esiste sempre!
     height=400,
     width=600,
-    drawing_mode=tool,
+    drawing_mode="freedraw",
     key="canvas",
 )
 
-st.info("💡 Consiglio: Carica un'immagine dalla barra a sinistra e inizia a dipingere!")
+st.write("🖌️ Disegna sopra l'immagine bianca o carica un tuo disegno!")
